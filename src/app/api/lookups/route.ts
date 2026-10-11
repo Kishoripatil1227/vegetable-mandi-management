@@ -30,6 +30,11 @@ export async function GET(req: Request) {
         .select('id,lot_no,farmers(name),vegetables(name),weighments(net_weight)')
         .eq('status', 'weighed').order('created_at', { ascending: false })
       break
+          case 'lots_auctioned':
+      res = await db.from('produce_lots')
+        .select('id,lot_no,farmers(name),vegetables(name)')
+        .eq('status', 'auctioned').order('created_at', { ascending: false })
+      break
     default:
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
   }
