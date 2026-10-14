@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 // 1. GET ALL FARMERS
 export async function GET(req: Request) {
   try {
-    const {error} = await requireRole(['admin'])
+    const { error } = await requireRole(['admin', 'staff'])
     if (error) return error
 
     const { searchParams } = new URL(req.url)
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
 // 2. POST - CREATE NEW FARMER
 export async function POST(req: Request) {
   try {
-    const { user, error } = await requireRole(['admin'])
+    const { user, error } = await requireRole(['admin', 'staff'])
     if (error) return error
 
     const data = await req.json()
