@@ -11,10 +11,11 @@ const links = [
   { href: '/weighments', label: 'Weighment', roles: ['admin', 'staff'] },
   { href: '/auctions', label: 'Auction & Commission', roles: ['admin', 'staff'] },
   { href: '/settlements', label: 'Settlements', roles: ['admin', 'staff'] },
-  { href: '/history', label: 'Search & History', roles: ['admin', 'staff', 'customer'] },
+  { href: '/history', label: 'Search & History', roles: ['admin', 'staff'] },
   { href: '/reports', label: 'Reports', roles: ['admin', 'staff'] },
   { href: '/settings', label: 'Profile / Settings', roles: ['admin', 'staff', 'customer'] },
   { href: '/roles', label: 'Role Management', roles: ['admin'] },
+  { href: '/customer-links', label: 'Customer Link', roles: ['admin'] },
 ]
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
