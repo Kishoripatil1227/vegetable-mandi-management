@@ -1,14 +1,27 @@
-import { createClient } from './server'
-import { supabaseAdmin } from './admin'
+import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export type Role = 'admin' | 'staff' | 'customer'
 
 export async function getCurrentUser() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return null
+
   const { data: profile } = await supabaseAdmin()
-    .from('profiles').select('*').eq('id', user.id).single()
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle()
   if (!profile) return null
-  return { id: user.id, email: user.email!, name: profile.full_name as string | null, role: profile.role as Role }
+
+  return {
+    id: user.id,
+    email: user.email!,
+    name: profile.full_name as string | null,
+    phone: (profile.phone ?? null) as string | null,
+    role: profile.role as Role,
+  }
 }

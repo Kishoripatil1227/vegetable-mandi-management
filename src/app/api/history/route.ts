@@ -1,4 +1,4 @@
- import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { requireRole, dbError } from '@/lib/api'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
@@ -12,13 +12,13 @@ export async function GET(req: Request) {
   const from = sp.get('from') || ''
   const to = sp.get('to') || ''
   const page = Number(sp.get('page') || 1)
-  const size = 10
+  const size = Number(sp.get('size') || 10)
 
   let q = supabaseAdmin()
     .from('produce_lots')
     .select(
       `id, lot_no, quantity, lot_date, status,
-       farmers(name,phone), vegetables(name),
+       farmers(name), vegetables(name),
        weighments(net_weight),
        auctions(rate_per_kg,total_amount, buyers(name), commissions(commission_amount)),
        settlements(net_payable,payment_status,paid_date)`,
