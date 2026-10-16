@@ -32,14 +32,18 @@ export default function RolesPage() {
     if (r.ok) { setForm(empty); load() }
   }
 
-  async function changeRole(id: string, role: string) {
+      async function changeRole(id: string, role: string) {
     const r = await fetch(`/api/users/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role }),
     })
-    const j = await r.json()
-    setMsg(r.ok ? { ok: true, text: 'Role updated' } : { ok: false, text: j.error })
+    const j = await r.json().catch(() => ({}))
+    setMsg(
+      r.ok
+        ? { ok: true, text: 'Role updated' }
+        : { ok: false, text: j.error || `Request failed (${r.status})` }
+    )
     load()
   }
 
