@@ -1,8 +1,9 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
+import StatusBadge from '@/components/StatusBadge'
 
 type Field = { key: string; label: string; required?: boolean }
-type Row = Record<string, any> // backend dynamic objects sathi safe data row type mapping
+type Row = Record<string, string | null>
 
 export default function MasterPage({
   title,
@@ -24,14 +25,8 @@ export default function MasterPage({
     const res = await fetch(`${endpoint}?search=${encodeURIComponent(search)}&page=${page}`)
     const json = await res.json()
     if (res.ok) {
-      // API madhun direct object array yet asel kiwa paginated structure handling block
-      if (json.data) {
-        setRows(Array.isArray(json.data) ? json.data : [])
-        setTotal(json.meta?.total || 0)
-      } else {
-        setRows(Array.isArray(json) ? json : [])
-        setTotal(Array.isArray(json) ? json.length : 0)
-      }
+      setRows(json.data)
+      setTotal(json.total)
     }
   }, [endpoint, search, page])
 
@@ -52,79 +47,109 @@ export default function MasterPage({
       setForm({})
       load()
     } else {
-      setMsg({ type: 'err', text: json.error || 'Failed to safe create log' })
+      setMsg({ type: 'err', text: json.error })
     }
   }
 
+  const pages = Math.max(1, Math.ceil(total / 10))
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-green-900">{title} Management</h1>
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <h1>{title}s</h1>
+        <span className="bg-[#e3f1e8] text-[#197a45] font-semibold text-sm px-3 py-1 rounded-full">
+          {total} total
+        </span>
+      </div>
 
-      <form onSubmit={save} className="bg-white p-4 rounded shadow grid md:grid-cols-4 gap-3 items-end">
-        {fields.map((f) => (
-          <div key={f.key}>
-            <label htmlFor={f.key} className="block text-sm mb-1">{f.label}</label>
-            <input
-              id={f.key}
-              required={f.required}
-              value={form[f.key] || ''}
-              onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-        ))}
-        <button className="bg-green-700 text-white py-2 rounded font-semibold">Add {title}</button>
+      <form onSubmit={save} className="bg-white p-5 rounded">
+        <h2 className="font-display text-lg mb-4">Add new {title.toLowerCase()}</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {fields.map((f) => (
+            <div key={f.key}>
+              <label htmlFor={f.key} className="block text-sm mb-1.5">
+                {f.label}{f.required && <span className="text-red-600"> *</span>}
+              </label>
+              <input
+                id={f.key}
+                required={f.required}
+                value={form[f.key] || ''}
+                onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                className="w-full"
+              />
+            </div>
+          ))}
+        </div>
+        <button className="bg-green-700 text-white px-6 py-2.5 mt-5">+ Add {title}</button>
       </form>
 
-      {msg && (
-        <p className={msg.type === 'ok' ? 'text-green-700' : 'text-red-600'}>{msg.text}</p>
-      )}
+      {msg && <p className={msg.type === 'ok' ? 'text-green-700' : 'text-red-600'}>{msg.text}</p>}
 
-      <div className="bg-white rounded shadow p-4">
-        <input
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          className="border rounded px-3 py-2 mb-3 w-full md:w-72"
-        />
+      <div className="bg-white rounded p-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+          <h2 className="font-display text-lg">All {title.toLowerCase()}s</h2>
+          <input
+            placeholder={`Search ${title.toLowerCase()}s...`}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="w-full sm:w-72"
+          />
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-green-100 text-left">
-              <tr>
+          <table className="text-sm">
+            <thead>
+              <tr className="text-left">
                 {fields.map((f) => (
-                  <th key={f.key} className="p-2">{f.label}</th>
+                  <th key={f.key}>{f.label.replace(/ \(.*\)/, '')}</th>
                 ))}
-                <th className="p-2">Status</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} className="border-t">
-                  {fields.map((f) => (
-                    <td key={f.key} className="p-2">{r[f.key]}</td>
+                <tr key={i}>
+                  {fields.map((f, idx) => (
+                    <td key={f.key}>
+                      {idx === 0 ? (
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 h-8 rounded-full bg-[#e3f1e8] text-[#197a45] grid place-items-center font-bold text-sm">
+                            {(r[f.key] || '?')[0].toUpperCase()}
+                          </span>
+                          <span className="font-semibold">{r[f.key]}</span>
+                        </div>
+                      ) : (
+                        r[f.key] || <span className="text-gray-400">-</span>
+                      )}
+                    </td>
                   ))}
-                  <td className="p-2">
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                      r.status === 'inactive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {r.status || 'active'}
-                    </span>
-                  </td>
+                  <td><StatusBadge s={r.status} /></td>
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={fields.length + 1} className="p-4 text-center text-gray-500">No records</td></tr>
+                <tr>
+                  <td colSpan={fields.length + 1}>
+                    <div className="py-10 text-center text-gray-500">
+                      <div className="text-4xl mb-2">🥬</div>
+                      <p className="font-semibold text-gray-700">No {title.toLowerCase()}s yet</p>
+                      <p className="text-sm">Add the first one using the form above.</p>
+                    </div>
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
-        <div className="flex items-center gap-3 mt-3">
-          <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-1 border rounded disabled:opacity-40">Prev</button>
-          <span>Page {page} of {Math.max(1, Math.ceil(total / 10))}</span>
-          <button disabled={page * 10 >= total} onClick={() => setPage(page + 1)} className="px-3 py-1 border rounded disabled:opacity-40">Next</button>
+
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-gray-500">Page {page} of {pages}</span>
+          <div className="flex gap-2">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)} className="border px-4 py-1.5">← Prev</button>
+            <button disabled={page >= pages} onClick={() => setPage(page + 1)} className="border px-4 py-1.5">Next →</button>
+          </div>
         </div>
       </div>
     </div>
