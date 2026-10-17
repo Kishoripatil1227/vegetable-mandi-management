@@ -22,6 +22,7 @@ export async function getCurrentUser() {
     email: user.email!,
     name: profile.full_name as string | null,
     phone: (profile.phone ?? null) as string | null,
+    requested_role: (profile.requested_role ?? null) as string | null,
     role: profile.role as Role,
   }
 }

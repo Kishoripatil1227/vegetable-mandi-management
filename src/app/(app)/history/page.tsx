@@ -1,5 +1,6 @@
 'use client'
 import { Fragment, useCallback, useEffect, useState } from 'react'
+import StatusBadge from '@/components/StatusBadge'
 const one = (v: any) => (Array.isArray(v) ? v[0] : v)
 
 export default function HistoryPage() {
@@ -55,7 +56,7 @@ export default function HistoryPage() {
                     <td className="p-2">{one(l.farmers)?.name}</td>
                     <td className="p-2">{one(l.vegetables)?.name}</td>
                     <td className="p-2">{l.lot_date}</td>
-                    <td className="p-2 capitalize">{l.status}</td>
+                    <td className="p-2"><StatusBadge s={l.status} /></td>
                     <td className="p-2">
                       <button className="text-green-700 underline" onClick={() => setOpen(open === l.id ? null : l.id)}>
                         {open === l.id ? 'Hide' : 'View'}

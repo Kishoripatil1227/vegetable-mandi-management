@@ -1,5 +1,6 @@
  'use client'
 import { useCallback, useEffect, useState } from 'react'
+import StatusBadge from '@/components/StatusBadge'
 
 type LotOpt = { id: string; lot_no: string; farmers: { name: string } | null; vegetables: { name: string } | null }
 type S = {
@@ -86,7 +87,7 @@ export default function SettlementPage() {
                   <td className="p-2">₹{s.gross_amount}</td>
                   <td className="p-2">₹{s.commission_amount}</td>
                   <td className="p-2 font-semibold">₹{s.net_payable}</td>
-                  <td className="p-2 capitalize">{s.payment_status}{s.paid_date ? ` (${s.paid_date})` : ''}</td>
+                  <td className="p-2"><StatusBadge s={s.payment_status} />{s.paid_date && <span className="ml-2 text-xs text-gray-500">{s.paid_date}</span>}</td>
                   <td className="p-2">
                     {s.payment_status === 'pending' && (
                       <button onClick={() => finalize(s.id)} className="bg-green-700 text-white px-3 py-1 rounded text-xs">
