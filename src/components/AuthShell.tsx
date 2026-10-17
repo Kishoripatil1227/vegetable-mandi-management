@@ -8,7 +8,7 @@ const slips = [
 
 export default function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen grid md:grid-cols-[1.15fr_1fr] bg-[#f1f4f0]">
+        <div className="min-h-screen grid md:grid-cols-[1.15fr_1fr] bg-[#f1f4f0]">
       <section className="bg-[#0d3822] text-white px-8 py-10 md:px-14 md:py-12 flex flex-col justify-between gap-10">
         <Link href="/" className="flex items-center gap-3">
           <span className="w-10 h-10 rounded-xl bg-[#f0b429] text-[#0d3822] grid place-items-center font-display font-extrabold">VM</span>
@@ -35,6 +35,6 @@ export default function AuthShell({ children }: { children: React.ReactNode }) {
         </div>
       </section>
       <section className="grid place-items-center p-6">{children}</section>
-    </main>
+    </div>
   )
 }
